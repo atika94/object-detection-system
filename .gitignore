@@ -1,0 +1,40 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+
+# ── Virtual environments ──────────────────────────────────────────────────────
+venv/
+.venv/
+env/
+ENV/
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── YOLO / training outputs ───────────────────────────────────────────────────
+runs/               # All training & inference results (large files)
+*.pt                # Model weight files (download separately)
+*.onnx
+*.torchscript
+
+# ── Dataset images & labels (tracked separately or via DVC) ──────────────────
+dataset/images/train/*
+dataset/images/val/*
+dataset/images/test/*
+dataset/labels/train/*
+dataset/labels/val/*
+dataset/labels/test/*
+# Keep the placeholder files
+!dataset/**/.gitkeep
+
+# ── OS / Editor ───────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp

@@ -1,0 +1,14 @@
+# data.yaml — YOLO dataset configuration
+# Update the paths and class names when you add your custom dataset.
+
+# Paths (relative to the project root)
+train: dataset/images/train
+val:   dataset/images/val
+test:  dataset/images/test
+
+# Number of classes
+nc: 1
+
+# Class names (replace with your own class labels)
+names:
+  - object

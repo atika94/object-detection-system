@@ -4,9 +4,7 @@ A beginner-friendly object detection project built with **Python** and **Ultraly
 The pipeline covers training on a custom dataset, running inference, evaluating model performance, and serving results through an interactive **Streamlit** web app.
 
 ---
-
 ## 📁 Project Structure
-
 ```
 object-detection-system/
 ├── dataset/
@@ -29,10 +27,7 @@ object-detection-system/
 └── README.md
 ```
 
----
-
-## ⚙️ Setup
-
+##  Setup
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/<your-username>/object-detection-system.git
@@ -55,15 +50,12 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
----
-
-## 🚀 Usage
+##  Usage
 
 ### Train
 ```bash
 python train.py
 ```
-
 ### Predict (inference)
 ```bash
 python predict.py --source dataset/images/test/sample.jpg
@@ -78,9 +70,6 @@ python evaluate.py
 ```bash
 streamlit run app.py
 ```
-
----
-
 ## 🛠️ Tech Stack
 
 | Library | Purpose |
@@ -93,8 +82,6 @@ streamlit run app.py
 | [PyYAML](https://pyyaml.org/) | YAML config parsing |
 | [Streamlit](https://streamlit.io/) | Interactive web UI |
 
----
-
 ## 📌 Roadmap
 
 - [x] Project structure initialised
@@ -102,8 +89,6 @@ streamlit run app.py
 - [ ] Fine-tune YOLOv8 on custom data
 - [ ] Evaluate model performance
 - [ ] Build full Streamlit web app
-
----
 
 ## 📄 License
 

@@ -1,3 +1,5 @@
+import av
+from streamlit_webrtc import webrtc_streamer, VideoProcessorBase
 import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
@@ -38,7 +40,8 @@ mode = st.sidebar.radio(
     "Select Detection Mode",
     [
         "📷 Image",
-        "🎥 Video"
+        "🎥 Video",
+        "📹 Live Webcam"
     ]
 )
 
@@ -50,16 +53,37 @@ confidence = st.sidebar.slider(
     step=0.05
 )
 
+class YOLOVideoProcessor(VideoProcessorBase):
+
+    def __init__(self):
+        self.model = YOLO("yolo26n.pt")
+        self.confidence = 0.4
+
+    def recv(self, frame):
+
+        image = frame.to_ndarray(format="bgr24")
+
+        results = self.model.predict(
+            image,
+            conf=self.confidence,
+            verbose=False
+        )
+
+        annotated_frame = results[0].plot()
+
+        return av.VideoFrame.from_ndarray(
+            annotated_frame,
+            format="bgr24"
+        )
+
 
 # --------------------------------------------------
 # Main Title
 # --------------------------------------------------
 
-st.title("🚦 Vehicle & Traffic Light Detection System")
+st.title("Vehicle & Traffic Light Detection System")
 
-st.write(
-    "Detect vehicles and traffic lights using a pretrained YOLO model."
-)
+st.write("Detect vehicles and traffic lights using a pretrained YOLO model.")
 
 
 # ==================================================
@@ -233,8 +257,32 @@ elif mode == "🎥 Video":
                 "Video processing completed!"
             )
 
-        # Clean temporary file
-        try:
-            os.remove(input_video_path)
-        except OSError:
-            pass
+
+# ==================================================
+# Live Webcam
+# ==================================================
+
+elif mode == "📹 Live Webcam":
+
+    st.header("📹 Real-Time Object Detection")
+
+    st.write(
+        "Allow camera access when your browser asks for permission."
+    )
+
+    webrtc_streamer(
+        key="yolo-webcam",
+        video_processor_factory=YOLOVideoProcessor,
+        media_stream_constraints={
+            "video": True,
+            "audio": False
+        },
+        async_processing=True
+    )
+
+
+    # Clean temporary file
+    try:
+        os.remove(input_video_path)
+    except OSError:
+        pass

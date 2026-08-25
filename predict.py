@@ -15,7 +15,7 @@ import argparse
 from ultralytics import YOLO
 
 # ── Configuration ────────────────────────────────────────────────────────────
-MODEL_PATH = "yolov8n.pt"   # Replace with trained weights, e.g. models/best.pt
+MODEL_PATH = "models/best.pt"   # Replace with trained weights, e.g. models/best.pt
 CONF_THRESH = 0.25          # Minimum confidence threshold for detections
 IMGSZ      = 640            # Inference image size
 DEVICE     = "cpu"          # Use "cuda" if a GPU is available

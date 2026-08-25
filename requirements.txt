@@ -1,18 +1,3 @@
-# Core deep learning & object detection
-ultralytics>=8.0.0       # YOLO model (training, inference, evaluation)
-
-# Computer vision
-opencv-python>=4.8.0     # Image/video processing
-
-# Data & numerics
-numpy>=1.24.0            # Array operations
-pandas>=2.0.0            # Data manipulation & CSV handling
-
-# Visualization
-matplotlib>=3.7.0        # Plotting metrics and results
-
-# Configuration
-PyYAML>=6.0              # Reading/writing data.yaml
-
-# Web app (added later, listed here for reference)
-streamlit>=1.28.0        # Interactive web UI for the detector
+ultralytics
+opencv-python
+numpy

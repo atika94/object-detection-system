@@ -98,26 +98,3 @@ Custom fine-tuning will be considered after the basic detection system is workin
 * Object tracking
 * Real-time FPS monitoring
 * Streamlit deployment
-
-
-## 📁 Project Structure
-
-object-detection-system/
-├── dataset/
-│   ├── images/
-│   │   ├── train/        # Training images
-│   │   ├── val/          # Validation images
-│   │   └── test/         # Test images
-│   └── labels/
-│       ├── train/        # YOLO-format training labels
-│       ├── val/          # YOLO-format validation labels
-│       └── test/         # YOLO-format test labels
-├── models/               # Saved trained model weights
-├── train.py              # Fine-tune YOLO on a custom dataset
-├── predict.py            # Run inference on image / video / webcam
-├── evaluate.py           # Evaluate model on the test set
-├── app.py                # Streamlit web app
-├── data.yaml             # Dataset configuration for YOLO
-├── requirements.txt      # Python dependencies
-├── .gitignore
-└── README.md

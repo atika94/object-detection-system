@@ -14,8 +14,9 @@ from ultralytics import YOLO
 # ── Configuration ────────────────────────────────────────────────────────────
 MODEL  = "yolov8n.pt"    # Pretrained model: n=nano, s=small, m=medium, l=large
 DATA   = "data.yaml"     # Dataset config file
-EPOCHS = 50              # Number of training epochs
+EPOCHS = 50              # Training epochs (agreed: 50)
 IMGSZ  = 640             # Input image size (pixels)
+BATCH  = 16              # Images per batch (reduce if you run out of RAM)
 DEVICE = "cpu"           # Use "cuda" if a GPU is available
 # ─────────────────────────────────────────────────────────────────────────────
 
@@ -29,6 +30,7 @@ def main():
         data=DATA,
         epochs=EPOCHS,
         imgsz=IMGSZ,
+        batch=BATCH,
         device=DEVICE,
     )
 

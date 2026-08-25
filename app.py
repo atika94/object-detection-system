@@ -1,20 +1,25 @@
 import streamlit as st
 from ultralytics import YOLO
 from PIL import Image
+import tempfile
+import os
 
+
+# --------------------------------------------------
+# Page Configuration
+# --------------------------------------------------
 
 st.set_page_config(
-    page_title="Object Detection System",
-    page_icon="🚗",
+    page_title="Vehicle & Traffic Light Detection",
+    page_icon="🚦",
     layout="wide"
 )
 
-st.title("🚗 Vehicle & Traffic Light Detection")
-st.write(
-    "Detect vehicles and traffic lights using a pretrained YOLO model."
-)
 
-# Load model
+# --------------------------------------------------
+# Load Model
+# --------------------------------------------------
+
 @st.cache_resource
 def load_model():
     return YOLO("yolo26n.pt")
@@ -22,12 +27,14 @@ def load_model():
 
 model = load_model()
 
-uploaded_file = st.file_uploader(
-    "Upload an image",
-    type=["jpg", "jpeg", "png"]
-)
 
-confidence = st.slider(
+# --------------------------------------------------
+# Sidebar
+# --------------------------------------------------
+
+st.sidebar.title("⚙️ Settings")
+
+confidence = st.sidebar.slider(
     "Confidence Threshold",
     min_value=0.1,
     max_value=1.0,
@@ -36,22 +43,50 @@ confidence = st.slider(
 )
 
 
+# --------------------------------------------------
+# Main Page
+# --------------------------------------------------
+
+st.title("🚦 Vehicle & Traffic Light Detection System")
+
+st.write(
+    "Detect vehicles and traffic lights using a pretrained YOLO model."
+)
+
+
+# --------------------------------------------------
+# Upload Image
+# --------------------------------------------------
+
+uploaded_file = st.file_uploader(
+    "Upload an image",
+    type=["jpg", "jpeg", "png"]
+)
+
+
 if uploaded_file is not None:
 
     image = Image.open(uploaded_file)
 
-    st.subheader("Original Image")
-    st.image(image, use_container_width=True)
+    col1, col2 = st.columns(2)
 
-    if st.button("Detect Objects"):
+    with col1:
+        st.subheader("Original Image")
+        st.image(image, use_container_width=True)
+
+    with st.spinner("Detecting objects..."):
 
         results = model.predict(
             image,
             conf=confidence
         )
 
-        result_image = results[0].plot()
+    result = results[0]
 
+    # Draw detections
+    result_image = result.plot()
+
+    with col2:
         st.subheader("Detection Result")
         st.image(
             result_image,
@@ -59,4 +94,48 @@ if uploaded_file is not None:
             use_container_width=True
         )
 
-        st.success("Detection completed!")
+    # --------------------------------------------------
+    # Detection Information
+    # --------------------------------------------------
+
+    st.subheader("🔍 Detected Objects")
+
+    detections = []
+
+    if result.boxes is not None:
+
+        for box in result.boxes:
+
+            class_id = int(box.cls[0])
+            confidence_score = float(box.conf[0])
+
+            class_name = model.names[class_id]
+
+            detections.append(
+                {
+                    "Object": class_name,
+                    "Confidence": f"{confidence_score:.2%}"
+                }
+            )
+
+    if detections:
+
+        st.dataframe(
+            detections,
+            use_container_width=True
+        )
+
+        st.success(
+            f"{len(detections)} object(s) detected."
+        )
+
+    else:
+
+        st.warning("No objects detected.")
+
+
+else:
+
+    st.info(
+        "👆 Upload an image to start object detection."
+    )

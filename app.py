@@ -17,7 +17,7 @@ st.set_page_config(
 
 
 # --------------------------------------------------
-# Load Model
+# Load YOLO Model
 # --------------------------------------------------
 
 @st.cache_resource
@@ -32,7 +32,15 @@ model = load_model()
 # Sidebar
 # --------------------------------------------------
 
-st.sidebar.title("⚙️ Settings")
+st.sidebar.title("⚙️ Detection Settings")
+
+mode = st.sidebar.radio(
+    "Select Detection Mode",
+    [
+        "📷 Image",
+        "🎥 Video"
+    ]
+)
 
 confidence = st.sidebar.slider(
     "Confidence Threshold",
@@ -44,7 +52,7 @@ confidence = st.sidebar.slider(
 
 
 # --------------------------------------------------
-# Main Page
+# Main Title
 # --------------------------------------------------
 
 st.title("🚦 Vehicle & Traffic Light Detection System")
@@ -54,88 +62,179 @@ st.write(
 )
 
 
-# --------------------------------------------------
-# Upload Image
-# --------------------------------------------------
+# ==================================================
+# IMAGE DETECTION
+# ==================================================
 
-uploaded_file = st.file_uploader(
-    "Upload an image",
-    type=["jpg", "jpeg", "png"]
-)
+if mode == "📷 Image":
 
+    st.header("📷 Image Detection")
 
-if uploaded_file is not None:
+    uploaded_file = st.file_uploader(
+        "Upload an image",
+        type=["jpg", "jpeg", "png"]
+    )
 
-    image = Image.open(uploaded_file)
+    if uploaded_file is not None:
 
-    col1, col2 = st.columns(2)
+        image = Image.open(uploaded_file)
 
-    with col1:
-        st.subheader("Original Image")
-        st.image(image, use_container_width=True)
+        col1, col2 = st.columns(2)
 
-    with st.spinner("Detecting objects..."):
+        with col1:
 
-        results = model.predict(
-            image,
-            conf=confidence
-        )
+            st.subheader("Original Image")
 
-    result = results[0]
-
-    # Draw detections
-    result_image = result.plot()
-
-    with col2:
-        st.subheader("Detection Result")
-        st.image(
-            result_image,
-            channels="BGR",
-            use_container_width=True
-        )
-
-    # --------------------------------------------------
-    # Detection Information
-    # --------------------------------------------------
-
-    st.subheader("🔍 Detected Objects")
-
-    detections = []
-
-    if result.boxes is not None:
-
-        for box in result.boxes:
-
-            class_id = int(box.cls[0])
-            confidence_score = float(box.conf[0])
-
-            class_name = model.names[class_id]
-
-            detections.append(
-                {
-                    "Object": class_name,
-                    "Confidence": f"{confidence_score:.2%}"
-                }
+            st.image(
+                image,
+                use_container_width=True
             )
 
-    if detections:
+        if st.button("🔍 Detect Objects"):
 
-        st.dataframe(
-            detections,
-            use_container_width=True
-        )
+            with st.spinner("Detecting objects..."):
 
-        st.success(
-            f"{len(detections)} object(s) detected."
-        )
+                results = model.predict(
+                    image,
+                    conf=confidence
+                )
 
-    else:
+            result = results[0]
 
-        st.warning("No objects detected.")
+            result_image = result.plot()
+
+            with col2:
+
+                st.subheader("Detection Result")
+
+                st.image(
+                    result_image,
+                    channels="BGR",
+                    use_container_width=True
+                )
+
+            # ------------------------------------------
+            # Detection Information
+            # ------------------------------------------
+
+            detections = []
+
+            if result.boxes is not None:
+
+                for box in result.boxes:
+
+                    class_id = int(box.cls[0])
+
+                    confidence_score = float(
+                        box.conf[0]
+                    )
+
+                    class_name = model.names[class_id]
+
+                    detections.append(
+                        {
+                            "Object": class_name,
+                            "Confidence": f"{confidence_score:.2%}"
+                        }
+                    )
+
+            st.subheader("🔍 Detected Objects")
+
+            if detections:
+
+                st.dataframe(
+                    detections,
+                    use_container_width=True
+                )
+
+                st.success(
+                    f"{len(detections)} object(s) detected."
+                )
+
+            else:
+
+                st.warning(
+                    "No objects detected."
+                )
 
 
-else:
+# ==================================================
+# VIDEO DETECTION
+# ==================================================
 
-    st.info(
-        "👆 Upload an image to start object detection."
+elif mode == "🎥 Video":
+
+    st.header("🎥 Video Detection")
+
+    uploaded_video = st.file_uploader(
+        "Upload a video",
+        type=["mp4", "avi", "mov", "mkv"]
     )
+
+    if uploaded_video is not None:
+
+        # Save uploaded video temporarily
+        with tempfile.NamedTemporaryFile(
+            delete=False,
+            suffix=".mp4"
+        ) as temp_video:
+
+            temp_video.write(
+                uploaded_video.read()
+            )
+
+            input_video_path = temp_video.name
+
+        st.video(uploaded_video)
+
+        if st.button("🔍 Detect Objects in Video"):
+
+            output_placeholder = st.empty()
+
+            progress_bar = st.progress(0)
+
+            with st.spinner(
+                "Processing video..."
+            ):
+
+                results = model.predict(
+                    source=input_video_path,
+                    conf=confidence,
+                    save=True,
+                    stream=True
+                )
+
+                total_frames = 0
+
+                for result in results:
+
+                    total_frames += 1
+
+                    frame = result.plot()
+
+                    output_placeholder.image(
+                        frame,
+                        channels="BGR",
+                        use_container_width=True
+                    )
+
+                    # Progress indicator
+                    if total_frames % 10 == 0:
+                        progress_bar.progress(
+                            min(
+                                total_frames / 1000,
+                                0.99
+                            )
+                        )
+
+            progress_bar.progress(1.0)
+
+            st.success(
+                "Video processing completed!"
+            )
+
+        # Clean temporary file
+        try:
+            os.remove(input_video_path)
+        except OSError:
+            pass
